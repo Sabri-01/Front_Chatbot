@@ -22,7 +22,7 @@ class IAAnswer extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Logo de l'IA
-            Image.asset('assets/logo_uphf.png', height: 30),
+            Image.asset('assets/studymate_only_logo.png', height: 50),
             const SizedBox(width: 20),
             // Texte de réponse de l'IA
             Expanded(

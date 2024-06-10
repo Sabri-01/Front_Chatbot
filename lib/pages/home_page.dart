@@ -29,13 +29,13 @@ class _HomePageState extends State<HomePage> {
       backgroundColor: const Color(0xFF36373B),
       appBar: AppBar(
         backgroundColor: const Color(0xFF28292C),
-        title: const Text('UPHF ChatBot', style: TextStyle(color: Colors.white)),
+        title: const Text('StudyMate', style: TextStyle(color: Colors.white)),
         actions: [
           Padding(
             padding: EdgeInsets.only(right: widget.screenWidth / 30.0),
             child: Image.asset(
-              'assets/logo_uphf.png',
-              height: 30,
+              'assets/studymate_only_logo.png',
+              height: 40,
             ),
           ),
         ],
@@ -47,10 +47,20 @@ class _HomePageState extends State<HomePage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  CircleAvatar(
-                    backgroundColor: Colors.white,
-                    radius: 30,
-                    child: Image.asset('assets/logo_uphf.png'),
+                  ShaderMask(
+                    shaderCallback: (Rect bounds) {
+                      return const RadialGradient(
+                        center: Alignment.center,
+                        radius: 0.5,
+                        colors: [Color(0xFFFFF6F3), Color(0xFFFFF6F3)],
+                        stops: [0.5, 1.0],
+                      ).createShader(bounds);
+                    },
+                    child: CircleAvatar(
+                      backgroundColor: Colors.white,
+                      radius: 100,
+                      child: Image.asset('assets/studymate_logo.png', height: 135),
+                    ),
                   ),
                   const SizedBox(height: 30),
                 ],
@@ -65,7 +75,7 @@ class _HomePageState extends State<HomePage> {
               itemCount: suggestions.length,
               itemBuilder: (context, index) {
                 return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  padding:  EdgeInsets.only(left: widget.screenWidth/ 16.0 ),
                   child: SuggestionButton(
                     title: suggestions[index]['title']!,
                     description: suggestions[index]['description']!,

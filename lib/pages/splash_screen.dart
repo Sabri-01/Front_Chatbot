@@ -37,14 +37,14 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset('assets/logo_uphf.png'),
+            Image.asset('assets/studymate_logo.png', height: 350),
             const SizedBox(height: 20), 
-            RichText(
-              text: const TextSpan(
-                text: 'UPHF Chatbot',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30, color: Colors.black), 
-              ),
-            )
+            // RichText(
+            //   text: const TextSpan(
+            //     text: 'StudyMate',
+            //     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30, color: Colors.black), 
+            //   ),
+            // )
           ],
         ),
       ),

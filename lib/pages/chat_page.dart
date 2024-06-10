@@ -1,7 +1,9 @@
 import 'package:chatbot_project/components/ia_answer.dart';
 import 'package:chatbot_project/components/input_button.dart';
 import 'package:chatbot_project/components/user_message.dart';
+import 'package:chatbot_project/services/socket_service.dart'; // Importez votre service Socket
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class ChatPage extends StatefulWidget {
   final double screenWidth;
@@ -21,38 +23,42 @@ class ChatPage extends StatefulWidget {
 class _ChatPageState extends State<ChatPage> {
   final List<Map<String, String>> messages = [];
   final TextEditingController _controller = TextEditingController();
+  final SocketService socketService = SocketService();
 
   @override
   void initState() {
     super.initState();
-    // Ajouter le premier message de l'utilisateur à la liste des messages
-    messages.add({'type': 'user', 'message': widget.initialUserMessage});
-    // Simuler une réponse de l'IA
-    Future.delayed(Duration(seconds: 1), () {
+    // Connectez-vous au serveur WebSocket
+    socketService.connect();
+    // Écoutez les messages du serveur
+    socketService.listenToMessages((message) {
       setState(() {
-        messages.add({
-          'type': 'ia',
-          'message': 'Ceci est une réponse automatique de l\'IA.'
-        });
+        messages.add({'type': 'ia', 'message': message});
       });
     });
+
+    // Ajouter le premier message de l'utilisateur à la liste des messages
+    messages.add({'type': 'user', 'message': widget.initialUserMessage});
+    _sendMessageToIA(widget.initialUserMessage);
   }
 
   void _sendMessage(String message) {
     setState(() {
       messages.add({'type': 'user', 'message': message});
-      // Réinitialiser le champ de saisie
       _controller.clear();
     });
-    // Simuler une réponse de l'IA
-    Future.delayed(Duration(seconds: 1), () {
-      setState(() {
-        messages.add({
-          'type': 'ia',
-          'message': 'Ceci est une autre réponse automatique de l\'IA.'
-        });
-      });
-    });
+    _sendMessageToIA(message);
+  }
+
+  void _sendMessageToIA(String message) {
+    socketService.sendMessage(message);
+  }
+
+  @override
+  void dispose() {
+    // Déconnectez-vous du serveur WebSocket
+    socketService.disconnect();
+    super.dispose();
   }
 
   @override
@@ -61,8 +67,7 @@ class _ChatPageState extends State<ChatPage> {
       backgroundColor: const Color(0xFF36373B),
       appBar: AppBar(
         backgroundColor: const Color(0xFF28292C),
-        title:
-            const Text('UPHF ChatBot', style: TextStyle(color: Colors.white)),
+        title: const Text('StudyMate', style: TextStyle(color: Colors.white)),
         iconTheme: const IconThemeData(
           color: Colors.white, // Changer la couleur de la flèche de retour
         ),
@@ -70,8 +75,8 @@ class _ChatPageState extends State<ChatPage> {
           Padding(
             padding: EdgeInsets.only(right: widget.screenWidth / 30.0),
             child: Image.asset(
-              'assets/logo_uphf.png',
-              height: 30,
+              'assets/studymate_only_logo.png',
+              height: 40,
             ),
           ),
         ],
