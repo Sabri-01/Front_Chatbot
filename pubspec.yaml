@@ -37,6 +37,7 @@ dependencies:
   cupertino_icons: ^1.0.6
   custom_loading: ^1.0.3
   socket_io_client: ^2.0.3+1
+  animated_text_kit: ^4.2.2
 
 dev_dependencies:
   flutter_test:

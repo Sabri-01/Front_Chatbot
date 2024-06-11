@@ -1,3 +1,4 @@
+import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // Pour utiliser Clipboard
 
@@ -26,12 +27,16 @@ class IAAnswer extends StatelessWidget {
             const SizedBox(width: 20),
             // Texte de réponse de l'IA
             Expanded(
-              child: Text(
-                message,
-                style: const TextStyle(color: Colors.white, fontSize: 18.0),
-                softWrap: true, // Pour permettre au texte de revenir à la ligne
-              ),
-            ),
+                child: DefaultTextStyle(
+              style: const TextStyle(color: Colors.white, fontSize: 18.0),
+              softWrap: true,
+              child: AnimatedTextKit(
+                isRepeatingAnimation: false,
+                animatedTexts: [
+                TyperAnimatedText(message,
+                    speed: const Duration(milliseconds: 20))
+              ]),
+            )),
           ],
         ),
       ),

@@ -3,7 +3,6 @@ import 'package:chatbot_project/components/input_button.dart';
 import 'package:chatbot_project/components/user_message.dart';
 import 'package:chatbot_project/services/socket_service.dart'; // Importez votre service Socket
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 class ChatPage extends StatefulWidget {
   final double screenWidth;
@@ -21,6 +20,7 @@ class ChatPage extends StatefulWidget {
 }
 
 class _ChatPageState extends State<ChatPage> {
+  final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
   final List<Map<String, String>> messages = [];
   final TextEditingController _controller = TextEditingController();
   final SocketService socketService = SocketService();
@@ -33,21 +33,35 @@ class _ChatPageState extends State<ChatPage> {
     // Écoutez les messages du serveur
     socketService.listenToMessages((message) {
       setState(() {
-        messages.add({'type': 'ia', 'message': message});
+        _addMessage({'type': 'ia', 'message': message});
       });
     });
 
     // Ajouter le premier message de l'utilisateur à la liste des messages
-    messages.add({'type': 'user', 'message': widget.initialUserMessage});
+    _addMessage({'type': 'user', 'message': widget.initialUserMessage});
     _sendMessageToIA(widget.initialUserMessage);
+  }
+
+  void _addMessage(Map<String, String> message) {
+    messages.add(message);
+    _listKey.currentState?.insertItem(messages.length - 1);
   }
 
   void _sendMessage(String message) {
     setState(() {
-      messages.add({'type': 'user', 'message': message});
+      _addMessage({'type': 'user', 'message': message});
       _controller.clear();
     });
-    _sendMessageToIA(message);
+
+    // Ajouter une réponse automatique de l'IA pour le test
+    Future.delayed(Duration(seconds: 1), () {
+      setState(() {
+        _addMessage({'type': 'ia', 'message': 'Ceci est une réponse automatique de l\'IA.'});
+      });
+    });
+
+    // Envoyer le message au serveur (optionnel pour le test)
+    // _sendMessageToIA(message);
   }
 
   void _sendMessageToIA(String message) {
@@ -59,6 +73,41 @@ class _ChatPageState extends State<ChatPage> {
     // Déconnectez-vous du serveur WebSocket
     socketService.disconnect();
     super.dispose();
+  }
+
+  Widget _buildMessageItem(BuildContext context, int index, Animation<double> animation) {
+    final message = messages[index];
+    if (message['type'] == 'user') {
+      return ScaleTransition(
+        scale: animation,
+        alignment: Alignment.center,
+        child: Padding(
+          padding: EdgeInsets.only(
+              left: widget.screenWidth / 5.0,
+              right: widget.screenWidth / 15.0,
+              bottom: widget.screenHeight / 30.0),
+          child: UserMessage(
+            screenWidth: widget.screenWidth,
+            message: message['message']!,
+          ),
+        ),
+      );
+    } else {
+      return ScaleTransition(
+        scale: animation,
+        alignment: Alignment.center,
+        child: Padding(
+          padding: EdgeInsets.only(
+              left: widget.screenWidth / 20.0,
+              right: widget.screenWidth / 20.0,
+              bottom: widget.screenHeight / 35.0),
+          child: IAAnswer(
+            screenWidth: widget.screenWidth,
+            message: message['message']!,
+          ),
+        ),
+      );
+    }
   }
 
   @override
@@ -75,8 +124,8 @@ class _ChatPageState extends State<ChatPage> {
           Padding(
             padding: EdgeInsets.only(right: widget.screenWidth / 30.0),
             child: Image.asset(
-              'assets/studymate_only_logo.png',
-              height: 40,
+              'assets/logo_uphf.png',
+              height: 30,
             ),
           ),
         ],
@@ -85,31 +134,11 @@ class _ChatPageState extends State<ChatPage> {
         children: [
           SizedBox(height: widget.screenHeight / 35.0),
           Expanded(
-            child: ListView.builder(
-              itemCount: messages.length,
-              itemBuilder: (context, index) {
-                final message = messages[index];
-                if (message['type'] == 'user') {
-                  return Padding(
-                      padding: EdgeInsets.only(
-                          left: widget.screenWidth / 5.0,
-                          right: widget.screenWidth / 15.0,
-                          bottom: widget.screenHeight / 30.0),
-                      child: UserMessage(
-                        screenWidth: widget.screenWidth,
-                        message: message['message']!,
-                      ));
-                } else {
-                  return Padding(
-                      padding: EdgeInsets.only(
-                          left: widget.screenWidth / 20.0,
-                          right: widget.screenWidth / 20.0,
-                          bottom: widget.screenHeight / 35.0),
-                      child: IAAnswer(
-                        screenWidth: widget.screenWidth,
-                        message: message['message']!,
-                      ));
-                }
+            child: AnimatedList(
+              key: _listKey,
+              initialItemCount: messages.length,
+              itemBuilder: (context, index, animation) {
+                return _buildMessageItem(context, index, animation);
               },
             ),
           ),

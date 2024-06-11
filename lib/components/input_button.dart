@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 class InputButton extends StatelessWidget {
   final double width;
@@ -40,7 +39,7 @@ class InputButton extends StatelessWidget {
             icon: Image.asset(
               'assets/broom.png',
               height: imageHeight,
-              color: Color(0xFF340038),
+              color: const Color(0xFF340038),
             ),
             onPressed: () {
               controller.clear();
