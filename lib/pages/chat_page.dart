@@ -1,6 +1,7 @@
 import 'package:chatbot_project/components/ia_answer.dart';
 import 'package:chatbot_project/components/input_button.dart';
 import 'package:chatbot_project/components/user_message.dart';
+import 'package:chatbot_project/services/firestore.dart';
 import 'package:chatbot_project/services/socket_service.dart'; // Importez votre service Socket
 import 'package:flutter/material.dart';
 
@@ -24,6 +25,7 @@ class _ChatPageState extends State<ChatPage> {
   final List<Map<String, String>> messages = [];
   final TextEditingController _controller = TextEditingController();
   final SocketService socketService = SocketService();
+  final FirestoreService firestoreService = FirestoreService();
 
   @override
   void initState() {
@@ -44,6 +46,7 @@ class _ChatPageState extends State<ChatPage> {
 
   void _addMessage(Map<String, String> message) {
     messages.add(message);
+    firestoreService.addMessage(message);
     _listKey.currentState?.insertItem(messages.length - 1);
   }
 
@@ -56,7 +59,10 @@ class _ChatPageState extends State<ChatPage> {
     // Ajouter une réponse automatique de l'IA pour le test
     Future.delayed(Duration(seconds: 1), () {
       setState(() {
-        _addMessage({'type': 'ia', 'message': 'Ceci est une réponse automatique de l\'IA.'});
+        _addMessage({
+          'type': 'ia',
+          'message': 'Ceci est une réponse automatique de l\'IA.'
+        });
       });
     });
 
@@ -75,7 +81,8 @@ class _ChatPageState extends State<ChatPage> {
     super.dispose();
   }
 
-  Widget _buildMessageItem(BuildContext context, int index, Animation<double> animation) {
+  Widget _buildMessageItem(
+      BuildContext context, int index, Animation<double> animation) {
     final message = messages[index];
     if (message['type'] == 'user') {
       return ScaleTransition(
