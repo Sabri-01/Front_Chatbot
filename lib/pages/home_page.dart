@@ -1,6 +1,9 @@
 import 'package:chatbot_project/components/input_button.dart';
 import 'package:chatbot_project/components/suggest.dart';
+import 'package:chatbot_project/pages/login_page.dart';
+import 'package:chatbot_project/pages/register_page.dart';
 import 'package:chatbot_project/pages/chat_page.dart';
+import 'package:chatbot_project/services/auth_service.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
@@ -15,21 +18,63 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final TextEditingController _controller = TextEditingController();
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  AuthService authService = AuthService();
 
   List<Map<String, String>> suggestions = [
-    {'title': 'Suggestion 1', 'description': 'Description 1 qui est très longue pour tester le retour à la ligne automatique.'},
-    {'title': 'Suggestion 2', 'description': 'Description 2 qui est également longue.'},
+    {
+      'title': 'Suggestion 1',
+      'description':
+          'Description 1 qui est très longue pour tester le retour à la ligne automatique.'
+    },
+    {
+      'title': 'Suggestion 2',
+      'description': 'Description 2 qui est également longue.'
+    },
     {'title': 'Suggestion 3', 'description': 'Description 3 courte.'},
-    {'title': 'Suggestion 4', 'description': 'Description 4 qui est encore plus longue pour bien tester le retour à la ligne.'},
+    {
+      'title': 'Suggestion 4',
+      'description':
+          'Description 4 qui est encore plus longue pour bien tester le retour à la ligne.'
+    },
   ];
+
+  void _signOut(BuildContext context) async {
+    await authService.signOut();
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Déconnexion réussie"),
+          content: Text("Vous avez été déconnecté avec succès!"),
+          actions: [
+            TextButton(
+              child: Text("OK"),
+              onPressed: () {
+                Navigator.of(context).pop(); // Ferme le dialogue
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       backgroundColor: const Color(0xFF36373B),
       appBar: AppBar(
         backgroundColor: const Color(0xFF28292C),
         title: const Text('StudyMate', style: TextStyle(color: Colors.white)),
+        leading: IconButton(
+          icon: Icon(Icons.settings),
+          onPressed: () {
+            _scaffoldKey.currentState?.openDrawer();
+          },
+        ),
         actions: [
           Padding(
             padding: EdgeInsets.only(right: widget.screenWidth / 30.0),
@@ -39,6 +84,59 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
         ],
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: Color(0xFF28292C),
+              ),
+              child: Text(
+                'Paramètres',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                ),
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.person_add),
+              title: Text('Créer un compte'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => RegisterPage()),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.login),
+              title: Text('Se connecter'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => LoginPage()),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.logout),
+              title: Text('Se déconnecter'),
+              onTap: () {
+                _signOut(context);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.settings),
+              title: Text('Paramètres'),
+              onTap: () {
+                // Ajouter la logique de paramètres ici
+              },
+            ),
+          ],
+        ),
       ),
       body: Column(
         children: [
@@ -59,7 +157,8 @@ class _HomePageState extends State<HomePage> {
                     child: CircleAvatar(
                       backgroundColor: Colors.white,
                       radius: 100,
-                      child: Image.asset('assets/studymate_logo.png', height: 135),
+                      child:
+                          Image.asset('assets/studymate_logo.png', height: 135),
                     ),
                   ),
                   const SizedBox(height: 30),
@@ -67,15 +166,14 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
           ),
-          // Suggestions en ListView horizontale
           SizedBox(
-            height: 100, // Hauteur définie pour la ListView
+            height: 100,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               itemCount: suggestions.length,
               itemBuilder: (context, index) {
                 return Padding(
-                  padding:  EdgeInsets.only(left: widget.screenWidth/ 16.0 ),
+                  padding: EdgeInsets.only(left: widget.screenWidth / 16.0),
                   child: SuggestionButton(
                     title: suggestions[index]['title']!,
                     description: suggestions[index]['description']!,
@@ -89,7 +187,7 @@ class _HomePageState extends State<HomePage> {
               },
             ),
           ),
-          const SizedBox(height: 10), // Espace entre les suggestions et le bouton d'entrée
+          const SizedBox(height: 10),
           Padding(
             padding: EdgeInsets.only(
               left: widget.screenWidth / 16.0,

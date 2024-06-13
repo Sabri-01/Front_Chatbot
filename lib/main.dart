@@ -1,5 +1,7 @@
 import 'dart:io';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:chatbot_project/firebase_options.dart';
 import 'package:chatbot_project/pages/splash_screen.dart';
 import 'package:chatbot_project/services/socket_service.dart';
 
@@ -12,11 +14,13 @@ class MyHttpOverrides extends HttpOverrides {
   }
 }
 
-void main() {
-  // Appliquer les HttpOverrides
+  void main() async {
   HttpOverrides.global = MyHttpOverrides();
-  runApp(const MyApp());
-}
+    WidgetsFlutterBinding.ensureInitialized();
+    await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform);
+    runApp(const MyApp());
+  }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -35,7 +39,8 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         fontFamily: 'Inter',
       ),
-      home: SplashScreen(screenWidth: screenSize.width, screenHeight: screenSize.height),
+      home: SplashScreen(
+          screenWidth: screenSize.width, screenHeight: screenSize.height),
     );
   }
 }

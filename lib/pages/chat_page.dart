@@ -2,8 +2,11 @@ import 'dart:async';
 import 'package:chatbot_project/components/ia_answer.dart';
 import 'package:chatbot_project/components/input_button.dart';
 import 'package:chatbot_project/components/user_message.dart';
+import 'package:chatbot_project/services/firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:chatbot_project/services/socket_service.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ChatPage extends StatefulWidget {
   final double screenWidth;
@@ -22,17 +25,15 @@ class ChatPage extends StatefulWidget {
 
 class _ChatPageState extends State<ChatPage> {
   final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
-  final List<Map<String, String>> messages = [];
+  List<Map<String, String>> messages = [];
   final TextEditingController _controller = TextEditingController();
   final SocketService socketService = SocketService();
-  Timer? _responseTimer;
+  final FirestoreService firestoreService = FirestoreService();
 
   @override
   void initState() {
     super.initState();
-    // Connectez-vous au serveur WebSocket
     socketService.connect();
-    // Écoutez les messages du serveur
     socketService.listenToMessages((message) {
       if (mounted) {
         setState(() {
@@ -40,15 +41,52 @@ class _ChatPageState extends State<ChatPage> {
         });
       }
     });
+    fetchMessages();
 
-    // Ajouter le premier message de l'utilisateur à la liste des messages
     _addMessage({'type': 'user', 'message': widget.initialUserMessage});
     _sendMessageToIA(widget.initialUserMessage);
   }
 
+  void fetchMessages() async {
+    QuerySnapshot querySnapshot =
+        await FirebaseFirestore.instance.collection('messages').get();
+
+    List<Map<String, dynamic>> allMessages = querySnapshot.docs
+        .map((doc) => doc.data() as Map<String, dynamic>)
+        .toList();
+
+    List<Map<String, dynamic>> filteredMessages = allMessages
+        .where((message) => message['user'] == 'jupQXBfzgcc5IJDEQOg8wV3xhml1')
+        .toList();
+
+    filteredMessages.sort((a, b) {
+      Timestamp timestampA = a['timestamp'];
+      Timestamp timestampB = b['timestamp'];
+      return timestampB.compareTo(timestampA);
+    });
+  }
+
   void _addMessage(Map<String, String> message) {
     messages.add(message);
+
+    User? user = FirebaseAuth.instance.currentUser;
+
+    if (user != null) {
+      String uid = user.uid;
+      firestoreService.addMessage(user.uid, message);
+      print("UID de l'utilisateur connecté : $uid");
+    } else {
+      print("Aucun utilisateur connecté.");
+    }
+
     _listKey.currentState?.insertItem(messages.length - 1);
+  }
+
+  void _sendMessageSansIA(String message) {
+    setState(() {
+      _addMessage({'type': 'user', 'message': message});
+      _controller.clear();
+    });
   }
 
   void _sendMessage(String message) {
@@ -57,23 +95,31 @@ class _ChatPageState extends State<ChatPage> {
       _controller.clear();
     });
 
-    // Envoyer le message au serveur
-    _sendMessageToIA(message);
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      socketService.sendMessage(user.uid, message);
+    } else {
+      print("Aucun utilisateur connecté.");
+    }
   }
 
   void _sendMessageToIA(String message) {
     print('Envoi du message à l\'IA : $message');
-    socketService.sendMessage(message);
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      socketService.sendMessage(user.uid, message);
+    } else {
+      print("Aucun utilisateur connecté.");
+    }
   }
 
   @override
   void dispose() {
-    // Annuler le Timer s'il existe
-    _responseTimer?.cancel();
     super.dispose();
   }
 
-  Widget _buildMessageItem(BuildContext context, int index, Animation<double> animation) {
+  Widget _buildMessageItem(
+      BuildContext context, int index, Animation<double> animation) {
     final message = messages[index];
     if (message['type'] == 'user') {
       return ScaleTransition(
@@ -122,7 +168,7 @@ class _ChatPageState extends State<ChatPage> {
           Padding(
             padding: EdgeInsets.only(right: widget.screenWidth / 30.0),
             child: Image.asset(
-              'assets/logo_uphf.png',
+              'assets/studymate_only_logo.png',
               height: 30,
             ),
           ),

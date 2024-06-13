@@ -38,6 +38,10 @@ dependencies:
   custom_loading: ^1.0.3
   socket_io_client: ^2.0.3+1
   animated_text_kit: ^4.2.2
+  firebase_core: ^3.1.0
+  cloud_firestore: ^5.0.1
+  firebase_auth: ^5.1.0
+  firebase_database: ^11.0.1
 
 dev_dependencies:
   flutter_test:

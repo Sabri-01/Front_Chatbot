@@ -17,9 +17,10 @@ class SocketService {
         'autoConnect': true,
       });
 
-      
+      socket!.on('connect', (_) {
+        print('connected');
         socket!.emit('connection', 'Hello!');
-    
+      });
 
       socket!.on('disconnect', (_) {
         print('disconnected');
@@ -38,10 +39,6 @@ class SocketService {
         print('connect_timeout: $data');
       });
 
-      // socket!.on('error', (data) {
-      //   print('error: $data');
-      // });
-
       socket!.onError((data) {
         print('error: $data');
       });
@@ -52,8 +49,13 @@ class SocketService {
     return socket != null && socket!.connected;
   }
 
-  void sendMessage(String message) {
-    socket?.emit('user_message', message);
+  void sendMessage(String uid, String message) {
+    final userMessage = {
+      "user_id": uid,
+      "message": message,
+    };
+
+    socket?.emit('user_message', userMessage);
   }
 
   void listenToMessages(Function(String) onMessage) {
