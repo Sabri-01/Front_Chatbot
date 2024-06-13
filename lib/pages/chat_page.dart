@@ -2,8 +2,10 @@ import 'package:chatbot_project/components/ia_answer.dart';
 import 'package:chatbot_project/components/input_button.dart';
 import 'package:chatbot_project/components/user_message.dart';
 import 'package:chatbot_project/services/firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:chatbot_project/services/socket_service.dart'; // Importez votre service Socket
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ChatPage extends StatefulWidget {
   final double screenWidth;
@@ -26,6 +28,25 @@ class _ChatPageState extends State<ChatPage> {
   final TextEditingController _controller = TextEditingController();
   final SocketService socketService = SocketService();
   final FirestoreService firestoreService = FirestoreService();
+  void fetchMessages() async {
+    QuerySnapshot querySnapshot =
+        await FirebaseFirestore.instance.collection('messages').get();
+    User? user = FirebaseAuth.instance.currentUser;
+    // Convertir les documents en une liste de Map
+    List<Map<String, dynamic>> allMessages = querySnapshot.docs
+        .map((doc) => doc.data() as Map<String, dynamic>)
+        .toList();
+    if (user != null) {
+      // Filtrer les messages pour l'utilisateur spécifique en local
+      List<Map<String, dynamic>> filteredMessages =
+          allMessages.where((message) => message['user'] == user.uid).toList();
+
+      // Afficher les messages filtrés
+      for (var message in filteredMessages) {
+        print(message);
+      }
+    }
+  }
 
   @override
   void initState() {
@@ -38,15 +59,27 @@ class _ChatPageState extends State<ChatPage> {
         _addMessage({'type': 'ia', 'message': message});
       });
     });
+    fetchMessages();
 
-    // Ajouter le premier message de l'utilisateur à la liste des messages
     _addMessage({'type': 'user', 'message': widget.initialUserMessage});
     _sendMessageToIA(widget.initialUserMessage);
   }
 
   void _addMessage(Map<String, String> message) {
     messages.add(message);
-    firestoreService.addMessage(message);
+
+    User? user = FirebaseAuth.instance.currentUser;
+
+    if (user != null) {
+      // Obtenir l'UID de l'utilisateur connecté
+      String uid = user.uid;
+      firestoreService.addMessage(user.uid, message);
+      print("UID de l'utilisateur connecté : $uid");
+      print("servreur:");
+    } else {
+      print("Aucun utilisateur connecté.");
+    }
+
     _listKey.currentState?.insertItem(messages.length - 1);
   }
 
