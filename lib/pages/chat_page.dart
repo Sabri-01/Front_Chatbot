@@ -24,28 +24,53 @@ class ChatPage extends StatefulWidget {
 
 class _ChatPageState extends State<ChatPage> {
   final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
-  final List<Map<String, String>> messages = [];
+  List<Map<String, String>> messages = [];
   final TextEditingController _controller = TextEditingController();
   final SocketService socketService = SocketService();
   final FirestoreService firestoreService = FirestoreService();
   void fetchMessages() async {
     QuerySnapshot querySnapshot =
         await FirebaseFirestore.instance.collection('messages').get();
-    User? user = FirebaseAuth.instance.currentUser;
+
     // Convertir les documents en une liste de Map
     List<Map<String, dynamic>> allMessages = querySnapshot.docs
         .map((doc) => doc.data() as Map<String, dynamic>)
         .toList();
-    if (user != null) {
-      // Filtrer les messages pour l'utilisateur spécifique en local
-      List<Map<String, dynamic>> filteredMessages =
-          allMessages.where((message) => message['user'] == user.uid).toList();
 
-      // Afficher les messages filtrés
-      for (var message in filteredMessages) {
-        print(message);
-      }
+    // Filtrer les messages pour l'utilisateur spécifique en local
+    List<Map<String, dynamic>> filteredMessages = allMessages
+        .where((message) => message['user'] == 'jupQXBfzgcc5IJDEQOg8wV3xhml1')
+        .toList();
+
+    // Trier les messages en fonction du timestamp décroissant
+    filteredMessages.sort((a, b) {
+      Timestamp timestampA = a['timestamp'];
+      Timestamp timestampB = b['timestamp'];
+      return timestampB.compareTo(timestampA); // Descending order
+    });
+
+    // Extraire et convertir en Map<String, String>
+    List<Map<String, String>> resultMessages = filteredMessages
+        .map((message) => {
+              'type': message['message']['type'].toString(),
+              'message': message['message']['message'].toString()
+            })
+        .toList();
+
+    for (var messagee in resultMessages) {
+      print(messagee);
+        // Accès avec vérification nulle
+        String? nullableMessage = messagee['message'];
+        if (nullableMessage != null) {
+          String message = nullableMessage;
+          _sendMessageSansIA(message);
+          print('Message: $message'); // Output: ggg
+        } else {
+          print('Message not found');
+        }
+      
     }
+    //this.messages = resultMessages;
   }
 
   @override
@@ -75,12 +100,22 @@ class _ChatPageState extends State<ChatPage> {
       String uid = user.uid;
       firestoreService.addMessage(user.uid, message);
       print("UID de l'utilisateur connecté : $uid");
-      print("servreur:");
     } else {
       print("Aucun utilisateur connecté.");
     }
 
     _listKey.currentState?.insertItem(messages.length - 1);
+  }
+void _sendMessageSansIA(String message) {
+    setState(() {
+      _addMessage({'type': 'user', 'message': message});
+      _controller.clear();
+    });
+
+
+
+    // Envoyer le message au serveur (optionnel pour le test)
+    // _sendMessageToIA(message);
   }
 
   void _sendMessage(String message) {
