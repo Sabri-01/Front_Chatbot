@@ -30,12 +30,7 @@ class IAAnswer extends StatelessWidget {
                 child: DefaultTextStyle(
               style: const TextStyle(color: Colors.white, fontSize: 18.0),
               softWrap: true,
-              child: AnimatedTextKit(
-                isRepeatingAnimation: false,
-                animatedTexts: [
-                TyperAnimatedText(message,
-                    speed: const Duration(milliseconds: 20))
-              ]),
+              child: Text(message),
             )),
           ],
         ),

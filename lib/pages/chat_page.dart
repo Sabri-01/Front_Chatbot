@@ -29,6 +29,7 @@ class _ChatPageState extends State<ChatPage> {
   final TextEditingController _controller = TextEditingController();
   final SocketService socketService = SocketService();
   final FirestoreService firestoreService = FirestoreService();
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
@@ -80,6 +81,17 @@ class _ChatPageState extends State<ChatPage> {
     }
 
     _listKey.currentState?.insertItem(messages.length - 1);
+    _scrollToBottom();
+  }
+
+  void _scrollToBottom() {
+    Future.delayed(Duration(milliseconds: 300), () {
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    });
   }
 
   void _sendMessageSansIA(String message) {
@@ -115,6 +127,7 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   void dispose() {
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -180,6 +193,7 @@ class _ChatPageState extends State<ChatPage> {
           Expanded(
             child: AnimatedList(
               key: _listKey,
+              controller: _scrollController,
               initialItemCount: messages.length,
               itemBuilder: (context, index, animation) {
                 return _buildMessageItem(context, index, animation);

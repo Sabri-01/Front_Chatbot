@@ -25,17 +25,17 @@ class _HomePageState extends State<HomePage> {
     {
       'title': 'Suggestion 1',
       'description':
-          'Description 1 qui est très longue pour tester le retour à la ligne automatique.'
+          "Qu'est ce que Parcoursup ?"
     },
     {
       'title': 'Suggestion 2',
-      'description': 'Description 2 qui est également longue.'
+      'description': "Trouve moi une école d'ingénieur publique"
     },
-    {'title': 'Suggestion 3', 'description': 'Description 3 courte.'},
+    {'title': 'Suggestion 3', 'description': "Parle moi de l'INSA Hauts-De-France"},
     {
       'title': 'Suggestion 4',
       'description':
-          'Description 4 qui est encore plus longue pour bien tester le retour à la ligne.'
+          "Comment pourrais-je étudier le droit à Lyon ? "
     },
   ];
 
