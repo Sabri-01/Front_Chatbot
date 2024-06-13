@@ -1,49 +1,70 @@
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class SocketService {
-  late IO.Socket socket;
+  static final SocketService _instance = SocketService._internal();
+  IO.Socket? socket;
+
+  factory SocketService() {
+    return _instance;
+  }
+
+  SocketService._internal();
 
   void connect() {
-    socket = IO.io('http://<YOUR_SERVER_IP>:3000', IO.OptionBuilder()
-      .setTransports(['websocket']) // for Flutter or Dart VM
-      .disableAutoConnect()  // disable auto-connection
-      .build()
-    );
+    if (socket == null || !socket!.connected) {
+      socket = IO.io('https://82.66.33.22:44444', <String, dynamic>{
+        'transports': ['websocket'],
+        'autoConnect': true,
+      });
 
-    socket.connect();
+      
+        socket!.emit('connection', 'Hello!');
     
-    socket.onConnect((_) {
-      print('Connected to socket server');
-    });
 
-    socket.onConnectError((data) {
-      print('Connection Error: $data');
-    });
+      socket!.on('disconnect', (_) {
+        print('disconnected');
+        socket!.emit('disconnection', 'Goodbye!');
+      });
 
-    socket.onConnectTimeout((data) {
-      print('Connection Timeout: $data');
-    });
+      socket!.on('ai_message', (data) {
+        print('response: $data');
+      });
 
-    socket.onDisconnect((_) {
-      print('Disconnected from socket server');
-    });
+      socket!.on('connect_error', (data) {
+        print('connect_error: $data');
+      });
 
-    socket.on('fromServer', (data) {
-      print('Response from server: $data');
-    });
+      socket!.on('connect_timeout', (data) {
+        print('connect_timeout: $data');
+      });
+
+      // socket!.on('error', (data) {
+      //   print('error: $data');
+      // });
+
+      socket!.onError((data) {
+        print('error: $data');
+      });
+    }
+  }
+
+  bool isConnected() {
+    return socket != null && socket!.connected;
   }
 
   void sendMessage(String message) {
-    socket.emit('message', message);
+    socket?.emit('user_message', message);
   }
 
   void listenToMessages(Function(String) onMessage) {
-    socket.on('message', (data) {
+    socket?.off('ai_message');
+    socket?.on('ai_message', (data) {
       onMessage(data);
     });
   }
 
   void disconnect() {
-    socket.disconnect();
+    socket?.emit('disconnection', 'Goodbye!');
+    socket?.disconnect();
   }
 }

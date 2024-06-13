@@ -1,7 +1,8 @@
+import 'dart:async';
 import 'package:chatbot_project/components/ia_answer.dart';
 import 'package:chatbot_project/components/input_button.dart';
 import 'package:chatbot_project/components/user_message.dart';
-import 'package:chatbot_project/services/socket_service.dart'; // Importez votre service Socket
+import 'package:chatbot_project/services/socket_service.dart';
 import 'package:flutter/material.dart';
 
 class ChatPage extends StatefulWidget {
@@ -24,6 +25,7 @@ class _ChatPageState extends State<ChatPage> {
   final List<Map<String, String>> messages = [];
   final TextEditingController _controller = TextEditingController();
   final SocketService socketService = SocketService();
+  Timer? _responseTimer;
 
   @override
   void initState() {
@@ -32,9 +34,11 @@ class _ChatPageState extends State<ChatPage> {
     socketService.connect();
     // Écoutez les messages du serveur
     socketService.listenToMessages((message) {
-      setState(() {
-        _addMessage({'type': 'ia', 'message': message});
-      });
+      if (mounted) {
+        setState(() {
+          _addMessage({'type': 'ia', 'message': message});
+        });
+      }
     });
 
     // Ajouter le premier message de l'utilisateur à la liste des messages
@@ -53,25 +57,19 @@ class _ChatPageState extends State<ChatPage> {
       _controller.clear();
     });
 
-    // Ajouter une réponse automatique de l'IA pour le test
-    Future.delayed(Duration(seconds: 1), () {
-      setState(() {
-        _addMessage({'type': 'ia', 'message': 'Ceci est une réponse automatique de l\'IA.'});
-      });
-    });
-
-    // Envoyer le message au serveur (optionnel pour le test)
-    // _sendMessageToIA(message);
+    // Envoyer le message au serveur
+    _sendMessageToIA(message);
   }
 
   void _sendMessageToIA(String message) {
+    print('Envoi du message à l\'IA : $message');
     socketService.sendMessage(message);
   }
 
   @override
   void dispose() {
-    // Déconnectez-vous du serveur WebSocket
-    socketService.disconnect();
+    // Annuler le Timer s'il existe
+    _responseTimer?.cancel();
     super.dispose();
   }
 
@@ -118,7 +116,7 @@ class _ChatPageState extends State<ChatPage> {
         backgroundColor: const Color(0xFF28292C),
         title: const Text('StudyMate', style: TextStyle(color: Colors.white)),
         iconTheme: const IconThemeData(
-          color: Colors.white, // Changer la couleur de la flèche de retour
+          color: Colors.white,
         ),
         actions: [
           Padding(
