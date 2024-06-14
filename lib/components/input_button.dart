@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+/// [InputButton] est un widget de type stateless qui permet d'afficher une barre de recherche qui s'adapte à la 
+/// taille de l'écran et qui prend en paramètre une image et une fonction qui permettent de définir une action lors 
+/// de l'appui
 class InputButton extends StatelessWidget {
   final double width;
   final double height;

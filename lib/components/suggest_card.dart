@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+/// [SuggestionButton] est un wiget de type Stateless qui permet d'afficher une carte avec un titre
+/// et une description donné en parmamètre. On donne aussi la possibilité d'effectuer une action lors de 
+/// l'appui 
 class SuggestionButton extends StatelessWidget {
   final String title;
   final String description;

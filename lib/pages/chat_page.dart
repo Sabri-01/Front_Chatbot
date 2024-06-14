@@ -8,6 +8,8 @@ import 'package:chatbot_project/services/socket_service.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+/// [ChatPage] est un widget de type stateflul qui permet d'afficher la page d'interaction entre l'IA et l'utilisateur
+/// Elle prend en paramètre les dimensions de l'écran et le message initial de l'user donné dans [HomePage]
 class ChatPage extends StatefulWidget {
   final double screenWidth;
   final double screenHeight;
@@ -24,11 +26,17 @@ class ChatPage extends StatefulWidget {
 }
 
 class _ChatPageState extends State<ChatPage> {
+  /// Permet l'affichage des messages dans une liste animé
   final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
+
+  /// Liste permettatn de récupérer l'ensembled des messages dans une conversation
   List<Map<String, String>> messages = [];
+
   final TextEditingController _controller = TextEditingController();
   final SocketService socketService = SocketService();
   final FirestoreService firestoreService = FirestoreService();
+
+  /// Contrôle de la liste lorsqu'on scroll 
   final ScrollController _scrollController = ScrollController();
 
   @override
@@ -83,6 +91,7 @@ class _ChatPageState extends State<ChatPage> {
     _listKey.currentState?.insertItem(messages.length - 1);
     _scrollToBottom();
   }
+
 
   void _scrollToBottom() {
     Future.delayed(Duration(milliseconds: 300), () {

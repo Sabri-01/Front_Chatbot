@@ -1,5 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_database/firebase_database.dart';
+
+/// [FirestorService] est une classe qui implémente des méthodes fournis par 
+/// Firebase pour le stockage des utilisateurs et les messages. 
 class FirestoreService {
   //get collection of messages
   final CollectionReference messages =

@@ -1,11 +1,13 @@
 import 'package:chatbot_project/components/input_button.dart';
-import 'package:chatbot_project/components/suggest.dart';
+import 'package:chatbot_project/components/suggest_card.dart';
 import 'package:chatbot_project/pages/login_page.dart';
 import 'package:chatbot_project/pages/register_page.dart';
 import 'package:chatbot_project/pages/chat_page.dart';
 import 'package:chatbot_project/services/auth_service.dart';
 import 'package:flutter/material.dart';
 
+/// [HomePage] est un widget de type stateflul qui permet d'afficher l'écran d'acceuil afin de communiquer avec 
+/// l'IA
 class HomePage extends StatefulWidget {
   final double screenWidth;
   final double screenHeight;

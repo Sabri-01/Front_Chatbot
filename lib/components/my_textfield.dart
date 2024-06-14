@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+/// [MyTextField] est un widget de type stateless qui permet d'entrer un champ de texte
 class MyTextfield extends StatelessWidget {
   final String hintText;
   final bool obscureText;

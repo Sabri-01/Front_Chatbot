@@ -1,9 +1,11 @@
-import 'package:chatbot_project/components/my_button.dart';
+import 'package:chatbot_project/components/register_button.dart';
 import 'package:chatbot_project/components/my_textfield.dart';
 import 'package:chatbot_project/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'register_page.dart'; // Importer la page d'inscription
 
+/// [LoginPage] est un widget de type stateless qui permet de réaliser une connexion à son compte
+/// afin d'utiliser l'IA
 class LoginPage extends StatelessWidget {
   // Text editing controllers
   TextEditingController emailController = TextEditingController();

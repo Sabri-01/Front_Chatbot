@@ -1,9 +1,10 @@
-import 'package:chatbot_project/components/my_button.dart';
+import 'package:chatbot_project/components/register_button.dart';
 import 'package:chatbot_project/components/my_textfield.dart';
 import 'package:chatbot_project/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'login_page.dart'; // Importer la page de connexion
 
+/// [RegisterPage] est un widget de type stateless qui permet de s'inscrire
 class RegisterPage extends StatelessWidget {
   // Text editing controllers
   TextEditingController usernameController = TextEditingController();

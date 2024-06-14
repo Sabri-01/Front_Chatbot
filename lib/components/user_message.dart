@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // Pour utiliser Clipboard
 
+/// [UserMessage] est un widget de type stateless qui prend en paramètre un champ de texte
+///  et la taille de l'écran (largeur) afin d'afficher les messages de l'utilisateur
 class UserMessage extends StatelessWidget {
   final String message;
   final double screenWidth;

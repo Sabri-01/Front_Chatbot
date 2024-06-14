@@ -1,6 +1,7 @@
 import 'package:chatbot_project/pages/home_page.dart';
 import 'package:flutter/material.dart';
 
+/// [SplashScreen] est un widget de type stateflul qui affiche une animation au lancement de l'application
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key, required this.screenWidth, required this.screenHeight});
   final double screenWidth;

@@ -2,6 +2,8 @@ import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // Pour utiliser Clipboard
 
+/// [IAAnswer] est un widget de type stateless qui prend en paramètre un champ de texte messsage et la taille de l'écran
+/// afin d'afficher les messages de l'IA 
 class IAAnswer extends StatelessWidget {
   final String message;
   final double screenWidth;
